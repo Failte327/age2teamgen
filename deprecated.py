@@ -1,3 +1,5 @@
+# THIS FILE IS DEPRECATED, FUNCTIONALITY HAS BEEN MOVED INTO INTERFACE.PY
+
 import requests
 from bs4 import BeautifulSoup
 
