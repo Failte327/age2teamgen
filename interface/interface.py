@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 
@@ -10,6 +10,8 @@ def render_homepage():
 
 @app.route('/generate_teams')
 def team_generator():
+    players = request.form.get("playername")
+    print(players)
     user_id = 4289859 # Sean's user id, he's in most games so he's the easiest one to query
     url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
 
