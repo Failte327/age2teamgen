@@ -10,7 +10,7 @@ def render_homepage():
 
 @app.route('/generate_teams',  methods=['POST'])
 def team_generator():
-    player_list = request.form.get("playername").split()
+    player_list = request.form.get("playername").split(",")
     print(player_list)
 
     user_id = 4289859 # Sean's user id, he's in most games so he's the easiest one to query
@@ -22,6 +22,7 @@ def team_generator():
     parsed_data = BeautifulSoup(raw_data, features="lxml")
 
     players = []
+    active_players = {}
     player_ratings = {}
 
     links = parsed_data.select(".team-player")
@@ -41,7 +42,14 @@ def team_generator():
                         if player not in player_ratings:
                             player_ratings[player] = rating
 
-    print(player_ratings)
+    for i in player_list:
+        print(i)
+        for key, value in player_ratings.items():
+            if i == key:
+                active_players[key] = value
+
+    print(active_players)
+
     return player_ratings
 
 ## run cmd: flask --app interface run
