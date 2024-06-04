@@ -8,10 +8,11 @@ app = Flask(__name__)
 def render_homepage():
     return render_template("base.html")
 
-@app.route('/generate_teams')
+@app.route('/generate_teams',  methods=['POST'])
 def team_generator():
-    players = request.form.get("playername")
-    print(players)
+    player_list = request.form.get("playername").split()
+    print(player_list)
+
     user_id = 4289859 # Sean's user id, he's in most games so he's the easiest one to query
     url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
 
@@ -29,7 +30,6 @@ def team_generator():
             link_string = link.find("a").string.strip()
             if link_string not in players:
                 players.append(link_string)
-            
 
     for player in players:
         for link in links:

@@ -1,24 +1,9 @@
 <!doctype html>
 <title>Team Gen App</title>
 <h1>Age of Empires 2: Definitive Edition | Team Gen App</h1>
-<h2>Input Player Names here</h2>
-<form id="players">
-<input id="player" name="playername" placeholder="Player Name">
+<h2>Input Player Usernames, Separated by Commas</h2>
+<form action="{{ url_for('team_generator') }}" id="players" method="POST">
+<textarea id="playername" name="playername" placeholder="Player Name"></textarea>
 <br>
+<button type="submit">Generate Teams</button>
 </form>
-<button onClick="addInput()">Add Player</button>
-<a href="/generate_teams">
-    <button>Generate</button>
-</a>
-<script>
-    function addInput() {
-        var originalInput = document.getElementById('players');
-        var input = document.createElement('input');
-        var br = document.createElement('br');
-        input.id = 'player';
-        input.placeholder = 'Player Name';
-        input.name = 'playername';
-        originalInput.appendChild(input);
-        originalInput.appendChild(br);
-    }
-</script>
