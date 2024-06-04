@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
+import random
 
 app = Flask(__name__)
 
@@ -48,8 +49,22 @@ def team_generator():
             if i == key:
                 active_players[key] = value
 
-    print(active_players)
+    team_count = (len(active_players)) / 2
 
-    return player_ratings
+    teams_set = False
+
+    while teams_set is False:
+        players_on_team_1 = []
+        players_on_team_2 = []
+        while len(players_on_team_1) < team_count:
+            player = random.choice(list(active_players))
+            players_on_team_1.append(player)
+        while len(players_on_team_2) < team_count:
+            player = random.choice(list(active_players))
+            players_on_team_2.append(player)
+        print(players_on_team_1)
+        print(players_on_team_2)
+        if teams_set:
+            return player_ratings
 
 ## run cmd: flask --app interface run
