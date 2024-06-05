@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 import random
+import math
 
 app = Flask(__name__)
 
@@ -54,17 +55,34 @@ def team_generator():
     teams_set = False
 
     while teams_set is False:
-        players_on_team_1 = []
-        players_on_team_2 = []
+        players_on_team_1 = {}
+        players_on_team_2 = {}
         while len(players_on_team_1) < team_count:
-            player = random.choice(list(active_players))
-            players_on_team_1.append(player)
+            player = random.choice(list(active_players.items()))
+            players_on_team_1[player[0]] = player[1]
         while len(players_on_team_2) < team_count:
-            player = random.choice(list(active_players))
-            players_on_team_2.append(player)
+            player = random.choice(list(active_players.items()))
+            if player[0] not in players_on_team_1.keys():
+                players_on_team_2[player[0]] = player[1]
         print(players_on_team_1)
         print(players_on_team_2)
-        if teams_set:
-            return player_ratings
+        team_1_score = 0
+        team_2_score = 0
+        for i in players_on_team_1.values():
+            team_1_score = (team_1_score + int(i)) / team_count
+        for i in players_on_team_2.values():
+            team_2_score = (team_2_score + int(i)) / team_count
+        print(team_1_score)
+        print(team_2_score)
+        difference = team_1_score - team_2_score
+        print(difference)
+        if difference > 0:
+            if difference <= 10:
+                teams_set = True
+        elif difference < 0:
+            if difference >= -10:
+                teams_set = True
+    
+    return {"Team_1": players_on_team_1, "Team_2": players_on_team_2}
 
 ## run cmd: flask --app interface run
