@@ -16,9 +16,11 @@ def team_generator():
     player_list = request.form.get("playername").split(",")
     counter = 0
     for i in player_list:
-        new = i.strip()
+        new = i.strip().lower()
         player_list[counter] = new
         counter = counter + 1
+
+    print(player_list)
 
     # Get stats from aoe2insights.com
     user_id = 4289859 # Sean's user id, he's in most games so he's the easiest one to query
@@ -35,27 +37,29 @@ def team_generator():
     links = parsed_data.select(".team-player")
     for link in links:
         if link.find("a") is not None:
-            link_string = link.find("a").string.strip()
+            link_string = link.find("a").string.strip().lower()
             if link_string not in players:
                 players.append(link_string)
 
+    print(players)
     for player in players:
         for link in links:
             if link.find("a") is not None:
-                link_string = link.find("a").string.strip()
+                link_string = link.find("a").string.strip().lower()
                 if link_string == player:
                     if len(link.parent.select(".rating > span")) > 0:
                         rating = link.parent.select(".rating > span")[0].string
                         if player not in player_ratings:
                             player_ratings[player] = rating
 
+    print(player_ratings)
     alternate_lookup_ids = [7436245, 2804382, 7451904, 10061690]
     for i in player_list:
         if i == "meghalb":
-                active_players[i] = "800"
+            active_players[i] = "800"
         elif i == "brandonnelson68":
             active_players[i] = "800"
-        elif i == "Teancum00":
+        elif i == "teancum00":
             active_players[i] = "800"
         else:
             for key, value in player_ratings.items():
@@ -74,7 +78,7 @@ def team_generator():
                         links = parsed_data.select(".team-player")
                         for link in links:
                             if link.find("a") is not None:
-                                link_string = link.find("a").string.strip()
+                                link_string = link.find("a").string.strip().lower()
                                 if link_string == i:
                                     players.append(link_string)
                                     if len(link.parent.select(".rating > span")) > 0:
