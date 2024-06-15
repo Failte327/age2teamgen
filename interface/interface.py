@@ -89,6 +89,7 @@ def team_generator():
     # Create random player combinations until we have a difference in rating below the acceptable threshold
     team_count = (len(active_players)) / 2
     teams_set = False
+    tries = 0
 
     while teams_set is False:
         players_on_team_1 = {}
@@ -112,13 +113,33 @@ def team_generator():
         print(team_2_score)
         difference = team_1_score - team_2_score
         print(difference)
-        if difference > 0:
-            if difference <= 10:
-                teams_set = True
-        elif difference < 0:
-            if difference >= -10:
-                teams_set = True
+        tries = tries + 1
+        print(f"Attempts at matching teams: {tries}")
+        if tries <= 15:
+            if difference > 0:
+                if difference <= 10:
+                    teams_set = True
+            elif difference < 0:
+                if difference >= -10:
+                    teams_set = True
+        elif tries > 15 and tries <= 30:
+            if difference > 0:
+                if difference <= 50:
+                    teams_set = True
+            elif difference < 0:
+                if difference >= -50:
+                    teams_set = True
+        elif tries > 30 and tries <= 100:
+            if difference > 0:
+                if difference <= 100:
+                    teams_set = True
+            elif difference < 0:
+                if difference >= -100:
+                    teams_set = True
+        elif tries > 100:
+            teams_set = True
     
-    return {"Team_1": players_on_team_1, "Team_2": players_on_team_2}
+    teams = {"Team_1": list(players_on_team_1.keys()), "Team_2": list(players_on_team_2.keys())}
+    return render_template("teams.html", teams=teams)
 
 ## run cmd: flask --app interface run
