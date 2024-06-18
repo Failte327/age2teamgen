@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-color-scheme>
-  <head>
+  <head style="background-image: url('../age2.jpg')">
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,40 +11,84 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/css/bootstrap-blackbox.min.css"
       rel="stylesheet"
     />
+    <link href="css/base.css" , rel="stylesheet" />
     <title>Team Gen App</title>
-    <div data-bs-theme="dark">
-      <h1 class="page-header">
-        Age of Empires 2: Definitive Edition | Team Gen App
-      </h1>
-      <h2>Input Player Usernames, Separated by Commas</h2>
-      <div class="input-group">
-        <form
-          action="{{ url_for('team_generator') }}"
-          id="players"
-          method="POST"
-        >
-          <textarea
-            id="playername"
-            name="playername"
-            placeholder="Player Name"
-          ></textarea>
-          <br />
-          <button type="submit" class="btn btn-light">Generate Teams</button>
-        </form>
+    <body class="container-fluid">
+      <div>
+        <h1 class="page-header">
+          Age of Empires 2: Definitive Edition | Team Gen App
+        </h1>
+        <h4>Input Player Usernames, Separated by Commas</h2>
+        <div class="input-group">
+          <form
+            action="{{ url_for('team_generator') }}"
+            id="players"
+            method="POST"
+          >
+            <textarea
+              id="playername"
+              name="playername"
+              placeholder="Player Name"
+            ></textarea>
+            <br />
+            <button type="submit" class="btn btn-light">Generate Teams</button>
+          </form>
+          <br>
+          <form action="javascript:getMap()"><button type="submit" class="btn btn-light">Generate Map</button></form>
+        </div>
       </div>
-    </div>
+    </body>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script
       src="https://code.jquery.com/jquery-1.12.4.min.js"
       integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
       crossorigin="anonymous"
     ></script>
-    <!-- Optional Bootstrap JavaScript -->
-    <script src="location/of/the/bootstrap.js/here"></script>
 
     <!-- Required DarkMode JavaScript
              Also requires the `data-bs-color-scheme` attribute in either the HTML
              or the BODY tag -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/js/darkmode.min.js"></script>
+    <script>
+      // Define the API URL
+      const apiUrl = "http://127.0.0.1:10000/map";
+
+      function getMap() {
+        fetch(apiUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            response.text().then((text) => {
+              var el = document.createElement("div")
+              el.innerHTML = text
+              document.querySelector("form").appendChild(el)
+              return text;
+            })
+            
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+    <script>
+      function get_teams() {
+        // fetch("https://jsonplaceholder.typicode.com/todos", {
+        //   method: "POST",
+        //   body: JSON.stringify({
+        //     userId: 1,
+        //     title: "Fix my bugs",
+        //     completed: false
+        //   }),
+        //   headers: {
+        //     "Content-type": "application/json; charset=UTF-8"
+        //   }
+        // })
+      };
+    </script>
   </head>
 </html>

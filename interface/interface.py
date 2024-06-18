@@ -9,6 +9,13 @@ app = Flask(__name__)
 def render_homepage():
     return render_template("base.html")
 
+@app.route('/map')
+def choose_map():
+    maps = ["Acclivity", "Acropolis", "African Clearing", "Aftermath", "Alpine Lakes", "Amazon Tunnel", "Arabia", "Archipelago", "Arena", "Atacama", "Baltic", "Black Forest", "Bog Islands", "Bogland", "Budapest", "Cenotes", "City of Lakes", "Coastal", "Coastal Forest", "Continental", "Crater", "Crater Lake", "Crossroads", "Enclosed", "Eruption", "Fortress", "Four Lakes", "Frigid Lake", "Ghost Lake", "Gold Rush", "Golden Pit", "Golden Swamp", "Greenland", "Haboob", "Hamburger", "Hideout", "Highland", "Hill Fort", "Islands", "Kawasan", "Kilimanjaro", "Land Madness", "Land Nomad", "Lombardia", "Lowland", "Mangrove Jungle", "Marketplace", "Meadow", "Mediterranean", "MegaRandom", "Michi", "Migration", "Mongolia", "Morass", "Mountain Pass", "Mountain Range", "Mountain Ridge", "Nile Delta", "Nomad", "Northern Isles", "Oasis", "Pacific", "Islands", "Ravines", "Ring Fortress", "Rivers", "Runestones", "Sacred Springs", "Salt Marsh", "Sandbank", "Scandinavia", "Seize The Mountain", "Serengeti", "Shoals", "Socotra", "Steppe", "Team Islands", "Team Moats", "Valley", "Volcanic Island", "Wade", "Water", "Nomad", "Wolf Hill", "Yucatan"]
+    map_choice = random.choice(maps)
+    print(map_choice)
+    return map_choice
+
 @app.route('/generate_teams',  methods=['POST'])
 def team_generator():
     # Strip whitespace
@@ -29,7 +36,6 @@ def team_generator():
     parsed_data = BeautifulSoup(raw_data, features="lxml")
 
     # Construct data objects linking players to their ratings
-    
     players = []
     active_players = {}
     player_ratings = {}
@@ -57,7 +63,7 @@ def team_generator():
         if i == "meghalb":
             active_players[i] = "800"
         elif i == "brandonnelson68":
-            active_players[i] = "800"
+            active_players[i] = "700"
         elif i == "teancum00":
             active_players[i] = "800"
         else:
@@ -67,23 +73,27 @@ def team_generator():
             # Get stats from other profile pages if we can't find the player
             if i not in player_ratings.keys():
                 no_rating = True
-                while no_rating is True:
-                    for n in alternate_lookup_ids:
-                        user_id = n
-                        url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
-                        response = requests.get(url)
-                        raw_data = response.text
-                        parsed_data = BeautifulSoup(raw_data, features="lxml")
-                        links = parsed_data.select(".team-player")
-                        for link in links:
-                            if link.find("a") is not None:
-                                link_string = link.find("a").string.strip().lower()
-                                if link_string == i:
-                                    players.append(link_string)
-                                    if len(link.parent.select(".rating > span")) > 0:
-                                        rating = link.parent.select(".rating > span")[0].string
-                                        active_players[i] = rating
-                                        no_rating = False
+                for n in alternate_lookup_ids:
+                    user_id = n
+                    url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
+                    response = requests.get(url)
+                    raw_data = response.text
+                    parsed_data = BeautifulSoup(raw_data, features="lxml")
+                    links = parsed_data.select(".team-player")
+                    for link in links:
+                        if link.find("a") is not None:
+                            link_string = link.find("a").string.strip().lower()
+                            if link_string == i:
+                                players.append(link_string)
+                                if len(link.parent.select(".rating > span")) > 0:
+                                    rating = link.parent.select(".rating > span")[0].string
+                                    active_players[i] = rating
+                                    no_rating = False
+                # If we still can't find the player, return error
+                if no_rating is True:
+                    return "Error occurred, player is not in the list of known participants."
+
+
 
     # Create random player combinations until we have a difference in rating below the acceptable threshold
     team_count = (len(active_players)) / 2
