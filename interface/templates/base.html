@@ -21,7 +21,7 @@
         <h4>Input Player Usernames, Separated by Commas</h2>
         <div class="input-group">
           <form
-            action="{{ url_for('team_generator') }}"
+            action="javascript:getTeams()"
             id="players"
             method="POST"
           >
@@ -34,8 +34,9 @@
             <button type="submit" class="btn btn-light">Generate Teams</button>
           </form>
           <br>
-          <form action="javascript:getMap()"><button type="submit" class="btn btn-light">Generate Map</button></form>
         </div>
+        <div class="input-group"><form id="maps" action="javascript:getMap()"><button type="submit" class="btn btn-light">Generate Map</button></form></div>
+        <div id="stats"></div>
       </div>
     </body>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -60,9 +61,13 @@
               throw new Error("Network response was not ok");
             }
             response.text().then((text) => {
+              if (document.querySelector(`#chosenMap`) !== null) {
+                document.querySelector(`#chosenMap`).remove()
+              }
               var el = document.createElement("div")
               el.innerHTML = text
-              document.querySelector("form").appendChild(el)
+              el.id = "chosenMap"
+              document.querySelector("#maps").appendChild(el)
               return text;
             })
             
@@ -76,19 +81,78 @@
       }
     </script>
     <script>
-      function get_teams() {
-        // fetch("https://jsonplaceholder.typicode.com/todos", {
-        //   method: "POST",
-        //   body: JSON.stringify({
-        //     userId: 1,
-        //     title: "Fix my bugs",
-        //     completed: false
-        //   }),
-        //   headers: {
-        //     "Content-type": "application/json; charset=UTF-8"
-        //   }
-        // })
-      };
+      // Define the API URL
+      const statsUrl = "http://127.0.0.1:10000/stats";
+
+      function getStats(user) {
+        fetch(`${statsUrl}?user=${user[0].innerHTML}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Network response was not ok");
+            }
+            response.text().then((text) => {
+              if (document.querySelector(`#innerStats`) !== null) {
+                  document.querySelector(`#innerStats`).remove()
+              }
+              var el = document.createElement("div")
+              el.innerHTML = text
+              el.id = "innerStats"
+              document.querySelector("#stats").appendChild(el)
+              return text;
+            })
+          })
+          .then((data) => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+    </script>
+    <script>
+      const form = document.querySelector("#players");
+
+      async function getTeams() {
+        const formData = new FormData(form);
+
+        try {
+          const response = await fetch("http://127.0.0.1:10000/generate_teams", {
+            method: "POST",
+            body: formData,
+          });
+          response.text().then((text) => {
+              data = JSON.parse(text)
+              for (var i in data) {
+                if (document.querySelector(`#${i}`) !== null) {
+                  document.querySelector(`#${i}`).remove()
+                }
+                var ele = document.createElement("div")
+                ele.innerHTML = i + ": "
+                ele.id = i
+                document.querySelector("#players").appendChild(ele)
+              }
+              for (var i in data) {
+                for (var n in data[i]){
+                  var username = String(data[i][n])
+                  var el = document.createElement("form")
+                  el.id = username
+                  el.action = `javascript:getStats(${username})`
+                  document.querySelector(`#${i}`).appendChild(el)
+                  var el2 = document.createElement("button")
+                  el2.innerHTML = username
+                  document.querySelector(`#${username}`).appendChild(el2)
+                }
+              }
+          })
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      // Take over form submission
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        getTeams();
+      });
     </script>
   </head>
 </html>

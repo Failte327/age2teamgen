@@ -149,6 +149,42 @@ def team_generator():
             teams_set = True
     
     teams = {"Team_1": list(players_on_team_1.keys()), "Team_2": list(players_on_team_2.keys())}
-    return render_template("teams.html", teams=teams)
+    return teams
 
+@app.route('/stats')
+def get_stats():
+    data = request.args.get("user")
+    known_ids = {
+        "smhalbleib": 6877853,
+        "djhalbleib": 6867836,
+        "kolob_eagle25": 6888316,
+        "sjhalbleib": 4289859,
+        "country_slicker": 10785824,
+        "iceyman8": 8230988,
+        "stealy5": 6901071,
+        "scotthalb": 6867861,
+        "brandonnelson68": 7436245,
+        "teancum00": 12589454,
+        "meghalb": 7451904,
+        "grond": 2804382,
+        "charletttehalbleib": 10061690,
+        "reklewt": 5375940,
+    }
+
+    for key, value in known_ids.items():
+        if key == data:
+            url = f"https://www.aoe2insights.com/user/{value}/stats/0/frequent-opponents"
+            response = requests.get(url)
+            raw_data = response.text
+            parsed_data = BeautifulSoup(raw_data, features="lxml")
+            table = parsed_data.select("table")
+            stats = str(table).strip('[]')
+            url2 = f"https://www.aoe2insights.com/user/{value}/stats/0/frequent-teammates"
+            response2 = requests.get(url2)
+            raw_data2 = response2.text
+            parsed_data2 = BeautifulSoup(raw_data2, features="lxml")
+            table2 = parsed_data2.select("table")
+            stats = stats + (str(table2).strip("[]"))
+            print(stats)
+            return stats
 ## run cmd: flask --app interface run
