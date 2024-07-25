@@ -126,24 +126,24 @@ def team_generator():
         print(f"Attempts at matching teams: {tries}")
         if tries <= 15:
             if difference > 0:
+                if difference <= 5:
+                    teams_set = True
+            elif difference < 0:
+                if difference >= -5:
+                    teams_set = True
+        elif tries > 15 and tries <= 30:
+            if difference > 0:
                 if difference <= 10:
                     teams_set = True
             elif difference < 0:
                 if difference >= -10:
                     teams_set = True
-        elif tries > 15 and tries <= 30:
-            if difference > 0:
-                if difference <= 50:
-                    teams_set = True
-            elif difference < 0:
-                if difference >= -50:
-                    teams_set = True
         elif tries > 30 and tries <= 100:
             if difference > 0:
-                if difference <= 100:
+                if difference <= 20:
                     teams_set = True
             elif difference < 0:
-                if difference >= -100:
+                if difference >= -20:
                     teams_set = True
         elif tries > 100:
             teams_set = True
