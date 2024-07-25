@@ -14,28 +14,30 @@
     <link href="css/base.css" , rel="stylesheet" />
     <title>Team Gen App</title>
     <body class="container-fluid">
-      <div>
-        <h1 class="page-header">
+      <div class="jumbotron">
+        <h1 class="display-4">
           Age of Empires 2: Definitive Edition | Team Gen App
         </h1>
-        <h4>Input Player Usernames, Separated by Commas</h2>
-        <div class="input-group">
+        <h4 class="lead">Input Player Usernames, Separated by Commas</h2>
+        <div class="input-group" class="my-4">
           <form
             action="javascript:getTeams()"
             id="players"
             method="POST"
+            class="form-control"
           >
-            <textarea
+            <input
               id="playername"
               name="playername"
-              placeholder="Player Name"
-            ></textarea>
+              placeholder="Player Names"
+              class="form-control form-control-sm"
+            ></input>
             <br />
-            <button type="submit" class="btn btn-light">Generate Teams</button>
+            <button type="submit" class="btn btn-secondary btn-sm">Generate Teams</button>
           </form>
           <br>
         </div>
-        <div class="input-group"><form id="maps" action="javascript:getMap()"><button type="submit" class="btn btn-light">Generate Map</button></form></div>
+        <div class="input-group"><form id="maps" action="javascript:getMap()"><button type="submit" class="btn btn-secondary btn-sm my-4">Generate Map</button></form></div>
         <div id="stats"></div>
       </div>
     </body>
