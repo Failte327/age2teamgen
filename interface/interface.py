@@ -178,6 +178,10 @@ def get_stats():
             raw_data = response.text
             parsed_data = BeautifulSoup(raw_data, features="lxml")
             table = parsed_data.select("table")
+            for el in table:
+                for i in el.select("a", href=True):
+                    partial = i["href"]
+                    i["href"] = f"https://www.aoe2insights.com{partial}"
             stats = str(table).strip('[]')
             url2 = f"https://www.aoe2insights.com/user/{value}/stats/0/frequent-teammates"
             response2 = requests.get(url2)
@@ -185,6 +189,5 @@ def get_stats():
             parsed_data2 = BeautifulSoup(raw_data2, features="lxml")
             table2 = parsed_data2.select("table")
             stats = stats + (str(table2).strip("[]"))
-            print(stats)
             return stats
-## run cmd: flask --app interface run
+## run cmd: flask --app interface run -p10000

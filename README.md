@@ -6,6 +6,8 @@ pip install flask beautifulsoup4
 
 <b>Running the application:</b>
 
-flask --app interface run
+cd into the interface folder and run:
 
-This will open it on port 5000 by default. If you open port 5000 externally on the network, it should be accessible at http://{external_ip_address}:5000/
+flask --app interface run -p 10000
+
+If you open port 10000 externally on the network, it should be accessible at http://{external_ip_address}:10000/
