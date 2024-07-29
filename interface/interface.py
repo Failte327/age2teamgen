@@ -58,7 +58,7 @@ def team_generator():
                             player_ratings[player] = rating
 
     print(player_ratings)
-    alternate_lookup_ids = [7436245, 2804382, 7451904, 10061690]
+    alternate_lookup_ids = [7436245, 2804382, 7451904, 10061690, 2182022]
     for i in player_list:
         if i == "meghalb":
             active_players[i] = "800"
