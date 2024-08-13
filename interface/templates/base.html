@@ -38,6 +38,30 @@
           <br>
         </div>
         <div class="input-group"><form id="maps" action="javascript:getMap()"><button type="submit" class="btn btn-secondary btn-sm my-4">Generate Map</button></form></div>
+        <div class="input-group" class="my-4">
+          <form
+            action="javascript:addNewPlayer()"
+            id="new_player"
+            method="POST"
+            class="form-control"
+          >
+            <input
+              id="new_player_name"
+              name="new_player_name"
+              placeholder="New Player Name"
+              class="form-control form-control-sm"
+            ></input>
+            <input
+              id="aoe2_insights_id"
+              name="aoe2_insights_id"
+              placeholder="aoe2 insights ID"
+              class="form-control form-control-sm"
+            ></input>
+            <br />
+            <button type="submit" class="btn btn-secondary btn-sm">Add New Player</button>
+          </form>
+          <br>
+        </div>
         <div id="stats"></div>
       </div>
     </body>
@@ -156,5 +180,32 @@
         getTeams();
       });
     </script>
+
+<script>
+  const form2 = document.querySelector("#new_player");
+
+  async function addNewPlayer() {
+    const formData = new FormData(form2);
+
+    try {
+      const response = await fetch("http://127.0.0.1:10000/add_player", {
+        method: "POST",
+        body: formData,
+      });
+      response.text().then((text) => {
+        var ele = document.createElement("div")
+        ele.innerHTML = text
+        document.querySelector("#new_player").appendChild(ele)
+      })
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  // Take over form submission
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    addNewPlayer();
+  });
+</script>
   </head>
 </html>

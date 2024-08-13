@@ -2,6 +2,9 @@ from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 import random
+from sqlalchemy import create_engine, text
+
+engine = create_engine("sqlite:///players.db")
 
 app = Flask(__name__)
 
@@ -190,4 +193,20 @@ def get_stats():
             table2 = parsed_data2.select("table")
             stats = stats + (str(table2).strip("[]"))
             return stats
+        
+@app.route('/add_player', methods=["POST"])
+def add_player():
+    player_name = request.form.get("new_player_name")
+    aoe2_insights_id = request.form.get("aoe2_insights_id")
+
+    conn = engine.connect()
+    conn.execute(text(f"INSERT INTO players (player_name, aoe2_insights_id) VALUES ('{player_name}', {aoe2_insights_id});"))
+    conn.commit()
+    with conn as conn:
+        result = conn.execute(text(f"SELECT player_name, aoe2_insights_id FROM players WHERE player_name='{player_name}';"))
+        for row in result:
+            print("playername: ", row.player_name)
+            print("aoe2_insights_id: ", row.aoe2_insights_id)
+    conn.close()
+    return f"{player_name} added to player database."
 ## run cmd: flask --app interface run -p10000
