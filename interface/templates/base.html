@@ -185,12 +185,12 @@
   const form2 = document.querySelector("#new_player");
 
   async function addNewPlayer() {
-    const formData = new FormData(form2);
+    const formData2 = new FormData(form2);
 
     try {
       const response = await fetch("http://127.0.0.1:10000/add_player", {
         method: "POST",
-        body: formData,
+        body: formData2,
       });
       response.text().then((text) => {
         var ele = document.createElement("div")
@@ -202,7 +202,7 @@
     }
   }
   // Take over form submission
-  form.addEventListener("submit", (event) => {
+  form2.addEventListener("submit", (event) => {
     event.preventDefault();
     addNewPlayer();
   });

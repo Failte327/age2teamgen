@@ -21,85 +21,53 @@ def choose_map():
 
 @app.route('/generate_teams',  methods=['POST'])
 def team_generator():
-    # Strip whitespace
+    # Construct player list from form
     player_list = request.form.get("playername").split(",")
     counter = 0
     for i in player_list:
         new = i.strip().lower()
         player_list[counter] = new
         counter = counter + 1
+    
+    players_to_ids = {}
 
-    print(player_list)
-
-    # Get stats from aoe2insights.com
-    user_id = 4289859 # Sean's user id, he's in most games so he's the easiest one to query
-    url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
-    response = requests.get(url)
-    raw_data = response.text
-    parsed_data = BeautifulSoup(raw_data, features="lxml")
-
-    # Construct data objects linking players to their ratings
-    players = []
-    active_players = {}
+    # Get known player ids from the database
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT * FROM players;"))
+        for row in result:
+            for i in player_list:
+                if row.player_name.lower() == i:
+                    players_to_ids[i] = row.aoe2_insights_id
+    
     player_ratings = {}
-    links = parsed_data.select(".team-player")
-    for link in links:
-        if link.find("a") is not None:
-            link_string = link.find("a").string.strip().lower()
-            if link_string not in players:
-                players.append(link_string)
 
-    print(players)
-    for player in players:
+    for name, user_id in players_to_ids.items():
+        url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
+        response = requests.get(url)
+        raw_data = response.text
+        parsed_data = BeautifulSoup(raw_data, features="lxml")
+
+        # Construct data objects linking players to their ratings
+        links = parsed_data.select(".team-player")
         for link in links:
             if link.find("a") is not None:
                 link_string = link.find("a").string.strip().lower()
-                if link_string == player:
+                if link_string == name:
                     if len(link.parent.select(".rating > span")) > 0:
                         rating = link.parent.select(".rating > span")[0].string
-                        if player not in player_ratings:
-                            player_ratings[player] = rating
-
-    print(player_ratings)
-    alternate_lookup_ids = [7436245, 2804382, 7451904, 10061690, 2182022]
-    for i in player_list:
-        if i == "meghalb":
-            active_players[i] = "800"
-        elif i == "brandonnelson68":
-            active_players[i] = "700"
-        elif i == "teancum00":
-            active_players[i] = "800"
-        else:
-            for key, value in player_ratings.items():
-                if i == key:
-                    active_players[key] = value
-            # Get stats from other profile pages if we can't find the player
-            if i not in player_ratings.keys():
-                no_rating = True
-                for n in alternate_lookup_ids:
-                    user_id = n
-                    url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
-                    response = requests.get(url)
-                    raw_data = response.text
-                    parsed_data = BeautifulSoup(raw_data, features="lxml")
-                    links = parsed_data.select(".team-player")
-                    for link in links:
-                        if link.find("a") is not None:
-                            link_string = link.find("a").string.strip().lower()
-                            if link_string == i:
-                                players.append(link_string)
-                                if len(link.parent.select(".rating > span")) > 0:
-                                    rating = link.parent.select(".rating > span")[0].string
-                                    active_players[i] = rating
-                                    no_rating = False
-                # If we still can't find the player, return error
-                if no_rating is True:
-                    return "Error occurred, player is not in the list of known participants."
-
-
+                        if name not in player_ratings.keys():
+                            player_ratings[name] = rating
+                            print("Acquired rating for player: ", name, " -- ", rating)
+        if name == "meghalb":
+            player_ratings[name] = 800
+        elif name == "brandonnelson68":
+            player_ratings[name] = 700
+        elif name == "teancum00":
+            player_ratings[name] = 800
 
     # Create random player combinations until we have a difference in rating below the acceptable threshold
-    team_count = (len(active_players)) / 2
+    team_count = (len(players_to_ids)) / 2
+    print("Players per team: ", team_count)
     teams_set = False
     tries = 0
 
@@ -107,10 +75,10 @@ def team_generator():
         players_on_team_1 = {}
         players_on_team_2 = {}
         while len(players_on_team_1) < team_count:
-            player = random.choice(list(active_players.items()))
+            player = random.choice(list(player_ratings.items()))
             players_on_team_1[player[0]] = player[1]
         while len(players_on_team_2) < team_count:
-            player = random.choice(list(active_players.items()))
+            player = random.choice(list(player_ratings.items()))
             if player[0] not in players_on_team_1.keys():
                 players_on_team_2[player[0]] = player[1]
         print(players_on_team_1)
