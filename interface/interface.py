@@ -125,22 +125,11 @@ def team_generator():
 @app.route('/stats')
 def get_stats():
     data = request.args.get("user")
-    known_ids = {
-        "smhalbleib": 6877853,
-        "djhalbleib": 6867836,
-        "kolob_eagle25": 6888316,
-        "sjhalbleib": 4289859,
-        "country_slicker": 10785824,
-        "iceyman8": 8230988,
-        "stealy5": 6901071,
-        "scotthalb": 6867861,
-        "brandonnelson68": 7436245,
-        "teancum00": 12589454,
-        "meghalb": 7451904,
-        "nomrom": 2804382,
-        "charletttehalbleib": 10061690,
-        "reklewt": 5375940,
-    }
+    known_ids = {}
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT * FROM players;"))
+        for row in result:
+            known_ids[row.player_name] = row.aoe2_insights_id
 
     for key, value in known_ids.items():
         if key == data:
