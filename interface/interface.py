@@ -47,6 +47,7 @@ def team_generator():
     logger.success("Ratings from in-house database acquired")
     logger.debug(f"Database Ratings: {players_to_custom_ratings}")
 
+    logger.debug("Querying aoe2insights.com for player ratings...")
     for name, user_id in players_to_ids.items():
         url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
         response = requests.get(url)
@@ -79,6 +80,7 @@ def team_generator():
     teams_set = False
     tries = 0
 
+    logger.debug("Generating Teams...")
     while teams_set is False:
         players_on_team_1 = {}
         players_on_team_2 = {}
@@ -127,7 +129,9 @@ def team_generator():
                     teams_set = True
         elif tries > 100:
             teams_set = True
-    
+
+        if teams_set == False:
+            logger.error("Rating difference not within desired parameters, generating again...")
     teams = {"Team_1": list(players_on_team_1.keys()), "Team_2": list(players_on_team_2.keys())}
     logger.success(f"Teams generated: {teams}")
     return teams
