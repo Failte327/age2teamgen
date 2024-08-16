@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import random
 from sqlalchemy import create_engine, text
+from loguru import logger
 
 engine = create_engine("sqlite:///players.db")
 
@@ -16,7 +17,7 @@ def render_homepage():
 def choose_map():
     maps = ["Acclivity", "Acropolis", "African Clearing", "Aftermath", "Alpine Lakes", "Amazon Tunnel", "Arabia", "Archipelago", "Arena", "Atacama", "Baltic", "Black Forest", "Bog Islands", "Bogland", "Budapest", "Cenotes", "City of Lakes", "Coastal", "Coastal Forest", "Continental", "Crater", "Crater Lake", "Crossroads", "Enclosed", "Eruption", "Fortress", "Four Lakes", "Frigid Lake", "Ghost Lake", "Gold Rush", "Golden Pit", "Golden Swamp", "Greenland", "Haboob", "Hamburger", "Hideout", "Highland", "Hill Fort", "Islands", "Kawasan", "Kilimanjaro", "Land Madness", "Land Nomad", "Lombardia", "Lowland", "Mangrove Jungle", "Marketplace", "Meadow", "Mediterranean", "MegaRandom", "Michi", "Migration", "Mongolia", "Morass", "Mountain Pass", "Mountain Range", "Mountain Ridge", "Nile Delta", "Nomad", "Northern Isles", "Oasis", "Pacific", "Islands", "Ravines", "Ring Fortress", "Rivers", "Runestones", "Sacred Springs", "Salt Marsh", "Sandbank", "Scandinavia", "Seize The Mountain", "Serengeti", "Shoals", "Socotra", "Steppe", "Team Islands", "Team Moats", "Valley", "Volcanic Island", "Wade", "Water", "Nomad", "Wolf Hill", "Yucatan"]
     map_choice = random.choice(maps)
-    print(map_choice)
+    logger.success("Generated random map: ", map_choice)
     return map_choice
 
 @app.route('/generate_teams',  methods=['POST'])
@@ -30,6 +31,7 @@ def team_generator():
         counter = counter + 1
     
     players_to_ids = {}
+    players_to_custom_ratings = {}
 
     # Get known player ids from the database
     with engine.connect() as conn:
@@ -38,8 +40,12 @@ def team_generator():
             for i in player_list:
                 if row.player_name.lower() == i:
                     players_to_ids[i] = row.aoe2_insights_id
+                    players_to_custom_ratings[i] = row.rating
     
     player_ratings = {}
+
+    logger.success("Ratings from in-house database acquired")
+    logger.debug(f"Database Ratings: {players_to_custom_ratings}")
 
     for name, user_id in players_to_ids.items():
         url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
@@ -57,7 +63,6 @@ def team_generator():
                         rating = link.parent.select(".rating > span")[0].string
                         if name not in player_ratings.keys():
                             player_ratings[name] = rating
-                            print("Acquired rating for player: ", name, " -- ", rating)
         if name == "meghalb":
             player_ratings[name] = 800
         elif name == "brandonnelson68":
@@ -65,9 +70,12 @@ def team_generator():
         elif name == "teancum00":
             player_ratings[name] = 800
 
+    logger.success("Ratings from aoe2insights acquired")
+    logger.debug(f"aoe2insights Ratings: {player_ratings}")
+
     # Create random player combinations until we have a difference in rating below the acceptable threshold
     team_count = (len(players_to_ids)) / 2
-    print("Players per team: ", team_count)
+    logger.debug(f"Players per team: {team_count}",)
     teams_set = False
     tries = 0
 
@@ -81,20 +89,21 @@ def team_generator():
             player = random.choice(list(player_ratings.items()))
             if player[0] not in players_on_team_1.keys():
                 players_on_team_2[player[0]] = player[1]
-        print(players_on_team_1)
-        print(players_on_team_2)
+        logger.info(f"Team 1 Candidate: {players_on_team_1}")
+        logger.info(f"Team 2 Candidate: {players_on_team_2}")
         team_1_score = 0
         team_2_score = 0
         for i in players_on_team_1.values():
             team_1_score = (team_1_score + int(i)) / team_count
         for i in players_on_team_2.values():
             team_2_score = (team_2_score + int(i)) / team_count
-        print(team_1_score)
-        print(team_2_score)
+        logger.debug(f"Team 1 Candidate Aggregate Rating: {team_1_score}")
+        logger.debug(f"Team 2 Candidate Aggregate Rating: {team_2_score}")
         difference = team_1_score - team_2_score
-        print(difference)
+
+        logger.info(f"Team Score Difference: {difference}")
         tries = tries + 1
-        print(f"Attempts at matching teams: {tries}")
+        logger.debug(f"Attempts at matching teams: {tries}")
         if tries <= 15:
             if difference > 0:
                 if difference <= 5:
@@ -120,6 +129,7 @@ def team_generator():
             teams_set = True
     
     teams = {"Team_1": list(players_on_team_1.keys()), "Team_2": list(players_on_team_2.keys())}
+    logger.success(f"Teams generated: {teams}")
     return teams
 
 @app.route('/stats')
@@ -159,11 +169,7 @@ def add_player():
     conn = engine.connect()
     conn.execute(text(f"INSERT INTO players (player_name, aoe2_insights_id) VALUES ('{player_name}', {aoe2_insights_id});"))
     conn.commit()
-    with conn as conn:
-        result = conn.execute(text(f"SELECT player_name, aoe2_insights_id FROM players WHERE player_name='{player_name}';"))
-        for row in result:
-            print("playername: ", row.player_name)
-            print("aoe2_insights_id: ", row.aoe2_insights_id)
     conn.close()
+    logger.success(f"Player {player_name} with aoe2insights id {aoe2_insights_id} has been added to the database.")
     return f"{player_name} added to player database."
 ## run cmd: flask --app interface run -p10000
