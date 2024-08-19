@@ -169,9 +169,10 @@ def get_stats():
 def add_player():
     player_name = request.form.get("new_player_name")
     aoe2_insights_id = request.form.get("aoe2_insights_id")
+    inhouse_rating = request.form.get("inhouse_rating")
 
     conn = engine.connect()
-    conn.execute(text(f"INSERT INTO players (player_name, aoe2_insights_id) VALUES ('{player_name}', {aoe2_insights_id});"))
+    conn.execute(text(f"INSERT INTO players (player_name, aoe2_insights_id, rating) VALUES ('{player_name}', {aoe2_insights_id}, {inhouse_rating});"))
     conn.commit()
     conn.close()
     logger.success(f"Player {player_name} with aoe2insights id {aoe2_insights_id} has been added to the database.")
