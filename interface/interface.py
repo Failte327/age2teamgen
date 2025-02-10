@@ -35,12 +35,16 @@ def team_generator():
 
     # Get known player ids from the database
     with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM players;"))
-        for row in result:
-            for i in player_list:
-                if row.player_name.lower() == i:
-                    players_to_ids[i] = row.aoe2_insights_id
-                    players_to_custom_ratings[i] = row.rating
+        try:
+            result = conn.execute(text("SELECT * FROM players;"))
+            for row in result:
+                for i in player_list:
+                    if row.player_name.lower() == i:
+                        players_to_ids[i] = row.aoe2_insights_id
+                        players_to_custom_ratings[i] = row.rating
+        except:
+            print("DB error occurred, constructing players to aoe2insights id mapping manually.")
+            players_to_ids = {"sjhalbleib": 4289859, "reklewt": 5375940, "smhalbleib": 6877853, "nomrom": 2804382, "djhalbleib": 6867836, "scotthalb": 6867861, "charletttehalbleib": 10061690, "iceyman8": 8230988, "country_slicker": 10785824, "kolob_eagle25": 6888316, "quintonius": 2182022, "meghalb": 7451904, "brando": 7436245, "brandonnelson68": 7436245, "stealy5": 6901071, "azorr": 10455474, "acbishop": 4527003}
     
     player_ratings = {}
 
@@ -66,7 +70,7 @@ def team_generator():
                             player_ratings[name] = rating
         if name == "meghalb":
             player_ratings[name] = 800
-        elif name == "brandonnelson68":
+        elif name == "Brando":
             player_ratings[name] = 700
         elif name == "teancum00":
             player_ratings[name] = 800
