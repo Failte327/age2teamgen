@@ -177,4 +177,6 @@ def add_player():
     conn.close()
     logger.success(f"Player {player_name} with aoe2insights id {aoe2_insights_id} has been added to the database.")
     return f"{player_name} added to player database."
-## run cmd: flask --app interface run -p10000
+
+## dev run cmd: flask --app interface run -p10000
+## prod run cmd ?
