@@ -44,7 +44,7 @@ def team_generator():
                         players_to_custom_ratings[i] = row.rating
         except:
             print("DB error occurred, constructing players to aoe2insights id mapping manually.")
-            players_to_ids = {"sjhalbleib": 4289859, "reklewt": 5375940, "smhalbleib": 6877853, "nomrom": 2804382, "djhalbleib": 6867836, "scotthalb": 6867861, "charletttehalbleib": 10061690, "iceyman8": 8230988, "country_slicker": 10785824, "kolob_eagle25": 6888316, "quintonius": 2182022, "meghalb": 7451904, "brando": 7436245, "brandonnelson68": 7436245, "stealy5": 6901071, "azorr": 10455474, "acbishop": 4527003}
+            players_to_ids = {"sjhalbleib": 4289859, "reklewt": 5375940, "smhalbleib": 6877853, "nomrom": 2804382, "djhalbleib": 6867836, "scotthalb": 6867861, "charletttehalbleib": 10061690, "iceyman8": 8230988, "country_slicker": 10785824, "kolob_eagle25": 6888316, "quintonius": 2182022, "meghalb": 7451904, "brando": 7436245, "brandonnelson68": 7436245, "stealy5": 6901071, "azorr": 10455474, "acbishop": 4527003, "father.th2": 1198985}
     
     player_ratings = {}
 
