@@ -108,8 +108,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/js/darkmode.min.js"></script>
     <script>
       // Define the API URL
-      // const apiUrl = "https://randomizer.scotthalb.com/map";
-      const apiUrl = "http://127.0.0.1:10000/map" // Dev URL
+      const apiUrl = "https://randomizer.scotthalb.com/map";
+      // const apiUrl = "http://127.0.0.1:10000/map" // Dev URL
 
       function getMap() {
         fetch(apiUrl)
@@ -139,8 +139,8 @@
     </script>
     <script>
       // Define the API URL
-      const statsUrl = "http://127.0.0.1:10000/stats"  // DEV URL
-      // const statsUrl = "https://randomizer.scotthalb.com/stats";
+      // const statsUrl = "http://127.0.0.1:10000/stats"  // DEV URL
+      const statsUrl = "https://randomizer.scotthalb.com/stats";
 
       function getStats(user) {
         fetch(`${statsUrl}?user=${user[0].innerHTML}`)
@@ -181,14 +181,14 @@
         document.querySelector("#players").appendChild(loader);
 
         try {
-          // const response = await fetch("https://randomizer.scotthalb.com/generate_teams", {
-          //   method: "POST",
-          //   body: formData,
-          // });
-          const response = await fetch("http://127.0.0.1:10000/generate_teams", { // DEV URL
+          const response = await fetch("https://randomizer.scotthalb.com/generate_teams", {
             method: "POST",
             body: formData,
           });
+          // const response = await fetch("http://127.0.0.1:10000/generate_teams", { // DEV URL
+          //   method: "POST",
+          //   body: formData,
+          // });
           response.text().then((text) => {
               if (text.includes("not found in list of known players")) {
                 if (document.querySelector("#loader") !== null) {
