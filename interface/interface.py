@@ -2,12 +2,12 @@ from flask import Flask, render_template, request
 import requests
 from bs4 import BeautifulSoup
 import random
-from sqlalchemy import create_engine, text
 from loguru import logger
 
-engine = create_engine("sqlite:///players.db")
-
 app = Flask(__name__)
+
+players_to_ids = {"sjhalbleib": 4289859, "reklewt": 5375940, "smhalbleib": 6877853, "nomrom": 2804382, "djhalbleib": 6867836, "scotthalb": 6867861, "charletttehalbleib": 10061690, "iceyman8": 8230988, "country_slicker": 10785824, "kolob_eagle25": 6888316, "quintonius": 2182022, "meghalb": 7451904, "brando": 7436245, "brandonnelson68": 7436245, "stealy5": 6901071, "azorr": 10455474, "acbishop": 4527003, "father.th2": 1198985, "iceyman8": 8230988}
+
 
 @app.route('/')
 def render_homepage():
@@ -29,30 +29,19 @@ def team_generator():
         new = i.strip().lower()
         player_list[counter] = new
         counter = counter + 1
-    
-    players_to_ids = {}
-    players_to_custom_ratings = {}
+        if i not in players_to_ids.keys():
+            return f"Playername {i} not found in list of known players."
 
-    # Get known player ids from the database
-    with engine.connect() as conn:
-        try:
-            result = conn.execute(text("SELECT * FROM players;"))
-            for row in result:
-                for i in player_list:
-                    if row.player_name.lower() == i:
-                        players_to_ids[i] = row.aoe2_insights_id
-                        players_to_custom_ratings[i] = row.rating
-        except:
-            print("DB error occurred, constructing players to aoe2insights id mapping manually.")
-            players_to_ids = {"sjhalbleib": 4289859, "reklewt": 5375940, "smhalbleib": 6877853, "nomrom": 2804382, "djhalbleib": 6867836, "scotthalb": 6867861, "charletttehalbleib": 10061690, "iceyman8": 8230988, "country_slicker": 10785824, "kolob_eagle25": 6888316, "quintonius": 2182022, "meghalb": 7451904, "brando": 7436245, "brandonnelson68": 7436245, "stealy5": 6901071, "azorr": 10455474, "acbishop": 4527003, "father.th2": 1198985}
-    
+
+    currently_playing = {}
     player_ratings = {}
 
-    logger.success("Ratings from in-house database acquired")
-    logger.debug(f"Database Ratings: {players_to_custom_ratings}")
+    for player, id in players_to_ids.items():
+        if player in player_list:
+            currently_playing[player] = id
 
     logger.debug("Querying aoe2insights.com for player ratings...")
-    for name, user_id in players_to_ids.items():
+    for name, user_id in currently_playing.items():
         url = f"https://www.aoe2insights.com/user/{user_id}/matches/?ladder=0&player=&map=&played_civilization=&opponent_civilization=&duration=&position="
         response = requests.get(url)
         raw_data = response.text
@@ -79,7 +68,7 @@ def team_generator():
     logger.debug(f"aoe2insights Ratings: {player_ratings}")
 
     # Create random player combinations until we have a difference in rating below the acceptable threshold
-    team_count = (len(players_to_ids)) / 2
+    team_count = (len(currently_playing)) / 2
     logger.debug(f"Players per team: {team_count}",)
     teams_set = False
     tries = 0
@@ -143,13 +132,8 @@ def team_generator():
 @app.route('/stats')
 def get_stats():
     data = request.args.get("user")
-    known_ids = {}
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM players;"))
-        for row in result:
-            known_ids[row.player_name] = row.aoe2_insights_id
 
-    for key, value in known_ids.items():
+    for key, value in players_to_ids.items():
         if key == data:
             url = f"https://www.aoe2insights.com/user/{value}/stats/0/frequent-opponents"
             response = requests.get(url)
@@ -168,19 +152,6 @@ def get_stats():
             table2 = parsed_data2.select("table")
             stats = stats + (str(table2).strip("[]"))
             return stats
-        
-@app.route('/add_player', methods=["POST"])
-def add_player():
-    player_name = request.form.get("new_player_name")
-    aoe2_insights_id = request.form.get("aoe2_insights_id")
-    inhouse_rating = request.form.get("inhouse_rating")
-
-    conn = engine.connect()
-    conn.execute(text(f"INSERT INTO players (player_name, aoe2_insights_id, rating) VALUES ('{player_name}', {aoe2_insights_id}, {inhouse_rating});"))
-    conn.commit()
-    conn.close()
-    logger.success(f"Player {player_name} with aoe2insights id {aoe2_insights_id} has been added to the database.")
-    return f"{player_name} added to player database."
 
 ## dev run cmd: flask --app interface run -p10000
 ## prod run cmd ?
