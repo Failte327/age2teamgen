@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  div.jumbotron
+  h1.display-4= title
+  h4.lead Queue up players from the list of known players
+  div.form-control(id="add-player-container")
+  br
+  h4.lead Queued Players
+  form.form-control(id="teams" action="javascript:getTeams()")
+    div(id="current-players")
+    button.btn.btn-secondary.btn-sm.my-4(type="submit") Generate Teams
+  br
+  form.form-control(action="javascript:getMap()" id="maps")
+    h4.lead Map Generator
+    button.btn.btn-secondary.btn-sm.my-4(type="submit") Generate Map
