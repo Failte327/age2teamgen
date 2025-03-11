@@ -70,12 +70,12 @@ router.post('/generate_teams', function(req, res, next) {
       }
       if (team1Score > team2Score) {
         var deficit = team1Score - team2Score;
-        if (deficit < 300) {
+        if (deficit < 50) {
           teamsSet = true;
         }
       } else {
         var deficit = team2Score - team1Score;
-        if (deficit < 300) {
+        if (deficit < 50) {
           teamsSet = true;
         }
       }

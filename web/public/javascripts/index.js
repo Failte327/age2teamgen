@@ -115,11 +115,17 @@ async function getTeams() {
     body: JSON.stringify(playerList),
   });
   response.json().then((data) => {
+    var team1 = `Team 1: ${data["team 1"]}`;
+    var team2 = `Team 2: ${data["team 2"]}`;
     if (document.querySelector("#loader")) {
-      document.querySelector("#loader").remove()
+      document.querySelector("#loader").remove();
+    }
+    if (document.querySelector("#TEAMS")) {
+      document.querySelector("#TEAMS").remove();
     }
     var ele = document.createElement("div");
-    ele.innerHTML = data;
+    ele.innerHTML = `${team1}\n ${team2}`;
+    ele.id = "TEAMS"
     document.querySelector("#teams").appendChild(ele);
   })
 }
